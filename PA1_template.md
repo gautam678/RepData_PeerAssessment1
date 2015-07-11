@@ -17,21 +17,36 @@ When you click the **Knit** button a document will be generated that includes bo
 ###What is mean total number of steps taken per day?  
 
 
-```{r}
+
+```r
 data<-read.csv("activity.csv")
 temp<-subset(data,na.rm=FALSE)
 steps_by_day <- aggregate(steps ~ date, data, sum)
 hist(steps_by_day$steps, main = paste("Total Steps Each Day"), col="red", xlab="Number of Steps")
+```
+
+![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1-1.png) 
+
+```r
 rmean <- mean(steps_by_day$steps)
 rmean
 ```
+
+```
+## [1] 10766.19
+```
 ###What is the average daily activity pattern    
-```{r}
+
+```r
 steps_by_interval <- aggregate(steps~interval,data,mean)  
 
 plot(steps_by_interval$interval,steps_by_interval$steps, type="l", xlab="Interval", ylab="Number of Steps",main="Average Number of Steps per Day by Interval")
-max_interval <- steps_by_interval[which.max(steps_by_interval$steps),1]
+```
 
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png) 
+
+```r
+max_interval <- steps_by_interval[which.max(steps_by_interval$steps),1]
 ```
 The 5-minute interval, on average across all the days in the data set, containing the maximum number of steps is 835  
 
@@ -39,7 +54,8 @@ The 5-minute interval, on average across all the days in the data set, containin
 
 Missing data needed to be imputed. Only a simple imputation approach was required for this assignment. Missing values were imputed by inserting the average for each interval. Thus, if interval 10 was missing on 10-02-2012, the average for that interval for all days (0.1320755), replaced the NA.  
 
-```{r}
+
+```r
 incomplete <- sum(!complete.cases(data))
 imputed_data <- transform(data, steps = ifelse(is.na(data$steps), steps_by_interval$steps[match(data$interval, steps_by_interval$interval)], data$steps))
 imputed_data[as.character(imputed_data$date) == "2012-10-01", 1] <- 0
@@ -49,17 +65,18 @@ hist(steps_by_day_i$steps, main = paste("Total Steps Each Day"), col="green", xl
 #Create Histogram to show difference. 
 hist(steps_by_day$steps, main = paste("Total Steps Each Day"), col="blue", xlab="Number of Steps", add=T)
 legend("topright", c("Imputed", "Non-imputed"), col=c("green", "blue"), lwd=10)
-
-
 ```
+
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png) 
 Calculate new mean and median for imputed data.  
-```{r}
+
+```r
 rmean.i <- mean(steps_by_day_i$steps)
 rmedian.i <- median(steps_by_day_i$steps)
-
 ```
 Calculate difference between imputed and non-imputed data.
-```{r}
+
+```r
 mean_diff <- rmean.i - rmean
 total_diff <- sum(steps_by_day_i$steps) - sum(steps_by_day$steps)
 ```
@@ -70,7 +87,8 @@ total_diff <- sum(steps_by_day_i$steps) - sum(steps_by_day$steps)
 
 ###Are there differences in activity patterns between weekdays and weekends?  
 
-```{r}
+
+```r
 weekdays <- c("Monday", "Tuesday", "Wednesday", "Thursday", 
               "Friday")
 imputed_data$dow = as.factor(ifelse(is.element(weekdays(as.Date(imputed_data$date)),weekdays), "Weekday", "Weekend"))
@@ -81,3 +99,5 @@ library(lattice)
 
 xyplot(steps_by_interval_i$steps ~ steps_by_interval_i$interval|steps_by_interval_i$dow, main="Average Steps per Day by Interval",xlab="Interval", ylab="Steps",layout=c(1,2), type="l")
 ```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png) 
